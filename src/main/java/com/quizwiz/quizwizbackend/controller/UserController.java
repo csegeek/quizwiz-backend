@@ -5,6 +5,7 @@ import com.quizwiz.quizwizbackend.entities.User;
 import com.quizwiz.quizwizbackend.entities.UserRole;
 import com.quizwiz.quizwizbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
@@ -17,13 +18,15 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder encoder;
+
     //creating user
     @PostMapping("/")
     public User createUser(@RequestBody User user) throws Exception {
-
         user.setProfile("default.png");
         //encoding password with bcryptpasswordencoder
-        // user.setPassword(this.bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setPassword(this.encoder.encode(user.getPassword()));
         Set<UserRole> roles = new HashSet<>();
         Role role = new Role();
         role.setRoleId(45L);
@@ -32,7 +35,6 @@ public class UserController {
         userRole.setRole(role);
         userRole.setUser(user);
         roles.add(userRole);
-
         return this.userService.createUser(user, roles);
 
     }

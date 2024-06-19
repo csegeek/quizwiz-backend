@@ -2,6 +2,9 @@ package com.quizwiz.quizwizbackend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,16 +42,42 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        for (UserRole r : userRoles) {
+            authorities.add(new SimpleGrantedAuthority(r.getRole().getRoleName()));
+        }
+        return authorities;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
     }
 
-    public String getPassword() {
-        return password;
+    @Override
+    public String getUsername() {
+        return userName;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
     public void setPassword(String password) {

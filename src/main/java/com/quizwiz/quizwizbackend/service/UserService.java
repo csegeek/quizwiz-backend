@@ -7,6 +7,7 @@ import com.quizwiz.quizwizbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -19,8 +20,8 @@ public class UserService {
     private RoleRepository roleRepository;
     //creating user
     public User createUser(User user, Set<UserRole> userRoles) throws Exception {
-        User local = this.userRepository.findByUserName(user.getUserName());
-        if (local != null) {
+        Optional<User> optionalUser = this.userRepository.findByUserName(user.getUsername());
+        if (optionalUser.isPresent()) {
             System.out.println("User is already there !!");
             throw new Exception("User is alrady present");
         } else {
@@ -29,14 +30,13 @@ public class UserService {
                 roleRepository.save(ur.getRole());
             }
             user.getUserRoles().addAll(userRoles);
-            local = this.userRepository.save(user);
+            return this.userRepository.save(user);
         }
 
-        return local;
     }
 
    public User getUser(String username) {
-        return this.userRepository.findByUserName(username);
+        return this.userRepository.findByUserName(username).get();
     }
 
     public void deleteUser(Long userId) {
